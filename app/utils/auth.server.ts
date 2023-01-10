@@ -1,8 +1,35 @@
-import { json } from "@remix-run/node";
+import { json, createCookieSessionStorage, redirect } from "@remix-run/node";
 import { prisma } from "./prisma.server";
 import { LoginForm, RegisterForm } from "./types.server";
 import { createUser } from "./user.server";
 import bcrypt from "bcryptjs";
+
+const sessionSecret = process.env.SESSION_SECRET;
+if (!sessionSecret) {
+  throw new Error("SESSION_SECRET must be set");
+}
+
+const storage = createCookieSessionStorage({
+  cookie: {
+    name: "kudos-session",
+    secure: process.env.NODE_ENV === "production",
+    secrets: [sessionSecret],
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30,
+    httpOnly: true,
+  },
+});
+
+export async function createUserSession(userId: string, redirectTo: string) {
+  const session = await storage.getSession();
+  session.set("userId", userId);
+  return redirect(redirectTo, {
+    headers: {
+      "Set-cookie": await storage.commitSession(session),
+    },
+  });
+}
 
 export async function register(user: RegisterForm) {
   const exist = await prisma.user.count({ where: { email: user.email } });
@@ -23,11 +50,12 @@ export async function register(user: RegisterForm) {
       { status: 400 }
     );
   }
+  return createUserSession(newUser.id, "/");
 }
 
 export async function login({ email, password }: LoginForm) {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user || !(await bcrypt.compare(password, user.password)))
     return json({ error: `Incorrect login` }, { status: 400 });
-  return { id: user.id, email };
+  return createUserSession(user.id, "/");
 }
