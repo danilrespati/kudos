@@ -20,8 +20,8 @@ export function FormField({
       </label>
       <input
         type={type}
-        id="email"
-        name="email"
+        id={htmlFor}
+        name={htmlFor}
         className="w-full p-2 rounded-xl my-2"
         value={value}
         onChange={onChange}
