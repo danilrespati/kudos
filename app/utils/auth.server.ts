@@ -21,16 +21,6 @@ const storage = createCookieSessionStorage({
   },
 });
 
-export async function createUserSession(userId: string, redirectTo: string) {
-  const session = await storage.getSession();
-  session.set("userId", userId);
-  return redirect(redirectTo, {
-    headers: {
-      "Set-cookie": await storage.commitSession(session),
-    },
-  });
-}
-
 export async function register(user: RegisterForm) {
   const exist = await prisma.user.count({ where: { email: user.email } });
   if (exist) {
@@ -58,4 +48,60 @@ export async function login({ email, password }: LoginForm) {
   if (!user || !(await bcrypt.compare(password, user.password)))
     return json({ error: `Incorrect login` }, { status: 400 });
   return createUserSession(user.id, "/");
+}
+
+export async function createUserSession(userId: string, redirectTo: string) {
+  const session = await storage.getSession();
+  session.set("userId", userId);
+  return redirect(redirectTo, {
+    headers: {
+      "Set-cookie": await storage.commitSession(session),
+    },
+  });
+}
+
+export async function requireUserId(
+  request: Request,
+  redirectTo: string = new URL(request.url).pathname
+) {
+  const userId = await getUserId(request);
+  if (!userId) {
+    const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
+    throw redirect(`/login?${searchParams}`);
+  }
+  return userId;
+}
+
+async function getUserId(request: Request) {
+  const session = await getUserSession(request);
+  const userId = session.get("userId");
+  if (!userId || typeof userId !== "string") {
+    return null;
+  }
+  return userId;
+}
+
+function getUserSession(request: Request) {
+  return storage.getSession(request.headers.get("cookie"));
+}
+
+export async function getUser(request: Request) {
+  const userId = await getUserId(request);
+  if (!userId) return null;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, profile: true },
+    });
+    return user;
+  } catch {
+    throw logout(request);
+  }
+}
+
+export async function logout(request: Request) {
+  const session = await getUserSession(request);
+  return redirect("/login", {
+    headers: { "Set-Cookie": await storage.destroySession(session) },
+  });
 }
