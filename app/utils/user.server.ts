@@ -20,3 +20,7 @@ export const getOtherUsers = async (userId: string) => {
     orderBy: { profile: { firstName: "asc" } },
   });
 };
+
+export const getUserById = async (userId: string) => {
+  return prisma.user.findUnique({ where: { id: userId } });
+};
