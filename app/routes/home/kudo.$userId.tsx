@@ -1,13 +1,19 @@
-import { KudoStyle } from "@prisma/client";
-import { json, LoaderFunction, redirect } from "@remix-run/node";
+import { Color, Emoji, KudoStyle } from "@prisma/client";
+import {
+  ActionFunction,
+  json,
+  LoaderFunction,
+  redirect,
+} from "@remix-run/node";
 import { useActionData, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { Kudo } from "~/components/Kudo";
 import { Modal } from "~/components/Modal";
 import { SelectBox } from "~/components/SelectBox";
 import { UserCircle } from "~/components/UserCircle";
-import { getUser } from "~/utils/auth.server";
+import { getUser, requireUserId } from "~/utils/auth.server";
 import { colorMap, emojiMap } from "~/utils/constants";
+import { createKudo } from "~/utils/kudo.server";
 import { getUserById } from "~/utils/user.server";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -16,6 +22,43 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await getUser(request);
   const recipient = await getUserById(userId);
   return json({ recipient, user });
+};
+
+export const action: ActionFunction = async ({ request }) => {
+  const userId = await requireUserId(request);
+
+  const form = await request.formData();
+  const message = form.get("message");
+  const backgroundColor = form.get("backgroundColor");
+  const textColor = form.get("textColor");
+  const emoji = form.get("emoji");
+  const recipientId = form.get("recipientId");
+
+  if (
+    typeof message !== "string" ||
+    typeof backgroundColor !== "string" ||
+    typeof textColor !== "string" ||
+    typeof emoji !== "string" ||
+    typeof recipientId !== "string"
+  ) {
+    return json({ error: `Invalid Form Data!` }, { status: 400 });
+  }
+
+  if (!message.length) {
+    return json({ error: `Please provide a message.` }, { status: 400 });
+  }
+
+  if (!recipientId.length) {
+    return json({ error: `No recipient found...` }, { status: 400 });
+  }
+
+  await createKudo(message, userId, recipientId, {
+    backgroundColor: backgroundColor as Color,
+    textColor: textColor as Color,
+    emoji: emoji as Emoji,
+  });
+
+  return redirect("/home");
 };
 
 export default function KudoModal() {
