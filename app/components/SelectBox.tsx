@@ -9,7 +9,7 @@ interface props {
   name?: string;
   label?: string;
   value?: any;
-  onChange: (...args: any) => any;
+  onChange?: (...args: any) => any;
 }
 
 export function SelectBox({
