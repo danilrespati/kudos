@@ -7,6 +7,7 @@ import { getFilteredKudos } from "~/utils/kudo.server";
 import { getOtherUsers } from "~/utils/user.server";
 import { Kudo as IKudo, Profile } from "@prisma/client";
 import { Kudo } from "~/components/Kudo";
+import { SearchBar } from "~/components/SearchBar";
 
 interface kudoWithProfile extends IKudo {
   author: {
@@ -29,7 +30,7 @@ export default function Home() {
       <div className="h-full flex">
         <UserPanel users={users} />
         <div className="flex-1 flex flex-col">
-          {/* Search Bar Goes Here */}
+          <SearchBar />
           <div className="flex-1 flex">
             <div className="w-full p-10 flex flex-col gap-y-4">
               {kudos.map((kudo: kudoWithProfile) => (
