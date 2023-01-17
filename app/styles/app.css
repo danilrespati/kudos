@@ -560,6 +560,10 @@ video {
   right: 2rem;
 }
 
+.m-0 {
+  margin: 0px;
+}
+
 .my-2 {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
@@ -772,6 +776,14 @@ video {
        column-gap: 6rem;
 }
 
+.overflow-auto {
+  overflow: auto;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
 .overflow-scroll {
   overflow: scroll;
 }
@@ -903,6 +915,10 @@ video {
 
 .p-10 {
   padding: 2.5rem;
+}
+
+.p-0 {
+  padding: 0px;
 }
 
 .px-6 {

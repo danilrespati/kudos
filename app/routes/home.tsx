@@ -76,8 +76,8 @@ export default function Home() {
         <UserPanel users={users} />
         <div className="flex-1 flex flex-col">
           <SearchBar />
-          <div className="flex-1 flex">
-            <div className="h-full w-full p-10 flex flex-col gap-y-4">
+          <div className="flex-1 flex overflow-hidden">
+            <div className="h-full w-full p-10 flex flex-col gap-y-4 overflow-auto scrollbar-hide">
               {kudos.map((kudo: kudoWithProfile) => (
                 <Kudo key={kudo.id} profile={kudo.author.profile} kudo={kudo} />
               ))}
