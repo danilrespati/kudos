@@ -6,7 +6,7 @@ import { SelectBox } from "./SelectBox";
 export function SearchBar() {
   const navigate = useNavigate();
   let [searchParams] = useSearchParams();
-  const [sort, setSort] = useState("");
+  const [sort, setSort] = useState(searchParams.get("sort") || "");
 
   const clearFilters = () => {
     searchParams.delete("filter");
