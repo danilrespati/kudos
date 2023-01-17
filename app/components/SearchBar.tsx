@@ -1,9 +1,15 @@
+import { Profile } from "@prisma/client";
 import { useNavigate, useSearchParams } from "@remix-run/react";
 import { useState } from "react";
 import { sortOptions } from "~/utils/constants";
 import { SelectBox } from "./SelectBox";
+import { UserCircle } from "./UserCircle";
 
-export function SearchBar() {
+interface props {
+  profile: Profile;
+}
+
+export function SearchBar({ profile }: props) {
   const navigate = useNavigate();
   let [searchParams] = useSearchParams();
   const [sort, setSort] = useState(searchParams.get("sort") || "");
@@ -16,7 +22,7 @@ export function SearchBar() {
 
   return (
     <form className="w-full px-6 flex items-center gap-x-4 border-b-4 border-b-blue-900 border-opacity-30 h-20">
-      <div className={`flex items-center w-2/5`}>
+      <div className="flex items-center w-2/5">
         <input
           type="text"
           name="filter"
@@ -57,6 +63,10 @@ export function SearchBar() {
         </button>
       )}
       <div className="flex-1" />
+      <UserCircle
+        profile={profile}
+        className="h-14 w-14 transition duration-300 ease-in-out hover:scale-110 hover: border-2 hover:border-yellow-300"
+      />
     </form>
   );
 }
