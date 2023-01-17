@@ -3,7 +3,9 @@ import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { FormField } from "~/components/FormField";
 import { Modal } from "~/components/Modal";
+import { SelectBox } from "~/components/SelectBox";
 import { getUser } from "~/utils/auth.server";
+import { departments } from "~/utils/constants";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
@@ -16,6 +18,7 @@ export default function ProfileSettings() {
   const [formData, setFormData] = useState({
     firstName: user.profile.firstName,
     lastName: user.profile.lastName,
+    department: user.profile.department || "Marketing",
   });
 
   const handleInputChange = (
@@ -45,6 +48,15 @@ export default function ProfileSettings() {
                 label="Last Name"
                 value={formData.lastName}
                 onChange={(e) => handleInputChange(e, "lastName")}
+              />
+              <SelectBox
+                className="w-full rounded-xl px-3 py-2 text-gray-400"
+                id="department"
+                label="Department"
+                name="department"
+                options={departments}
+                value={formData.department}
+                onChange={(e) => handleInputChange(e, "department")}
               />
               <div className="w-full text-right mt-4">
                 <button className="rounded-xl bg-yellow-300 font-semibold text-blue-600 px-16 py-2 transition duration-300 ease-in-out hover:bg-yellow-400 hover:translate-y-1">

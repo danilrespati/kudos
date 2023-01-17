@@ -11,8 +11,9 @@ datasource db {
 }
 
 type Profile {
-  firstName String
-  lastName  String
+  firstName  String
+  lastName   String
+  department Department? @default(MARKETING)
 }
 
 type KudoStyle {
@@ -55,4 +56,11 @@ enum Emoji {
   THUMBSUP
   PARTY
   HANDSUP
+}
+
+enum Department {
+  MARKETING
+  SALES
+  ENGINEERING
+  HR
 }
