@@ -1,15 +1,61 @@
-import { json, LoaderFunction } from "@remix-run/node";
+import { Department } from "@prisma/client";
+import {
+  ActionFunction,
+  json,
+  LoaderFunction,
+  redirect,
+} from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { FormField } from "~/components/FormField";
 import { Modal } from "~/components/Modal";
 import { SelectBox } from "~/components/SelectBox";
-import { getUser } from "~/utils/auth.server";
+import { getUser, requireUserId } from "~/utils/auth.server";
 import { departments } from "~/utils/constants";
+import { updateUser } from "~/utils/user.server";
+import { validateName } from "~/utils/validators.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
   return json({ user });
+};
+
+export const action: ActionFunction = async ({ request }) => {
+  const userId = await requireUserId(request);
+  const form = await request.formData();
+
+  let firstName = form.get("firstName");
+  let lastName = form.get("lastName");
+  let department = form.get("department");
+
+  if (
+    typeof firstName !== "string" ||
+    typeof lastName !== "string" ||
+    typeof department !== "string"
+  ) {
+    return json({ error: `Invalid Form Data` }, { status: 400 });
+  }
+
+  const errors = {
+    firstName: validateName(firstName),
+    lastName: validateName(lastName),
+    department: validateName(department),
+  };
+
+  if (Object.values(errors).some(Boolean)) {
+    return json(
+      { errors, fields: { firstName, lastName, department } },
+      { status: 400 }
+    );
+  }
+
+  await updateUser(userId, {
+    firstName,
+    lastName,
+    department: department as Department,
+  });
+
+  return redirect("/home");
 };
 
 export default function ProfileSettings() {
@@ -18,7 +64,7 @@ export default function ProfileSettings() {
   const [formData, setFormData] = useState({
     firstName: user.profile.firstName,
     lastName: user.profile.lastName,
-    department: user.profile.department || "Marketing",
+    department: user.profile.department || "MARKETING",
   });
 
   const handleInputChange = (
