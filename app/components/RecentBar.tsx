@@ -14,7 +14,7 @@ export function RecentBar({ kudos }: { kudos: KudoWithRecipient[] }) {
       </h2>
       <div className="h-full flex flex-col gap-y-10 mt-10">
         {kudos.map((kudo) => (
-          <div className="h-24 w-24 relative" key={kudo.recipientId}>
+          <div key={kudo.id} className="h-24 w-24 relative">
             <UserCircle
               profile={kudo.recipient.profile}
               className="w-20 h-20"
