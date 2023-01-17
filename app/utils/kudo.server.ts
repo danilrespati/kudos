@@ -46,3 +46,22 @@ export const getFilteredKudos = async (
     },
   });
 };
+
+export const getRecentKudos = async (userId: string) => {
+  return await prisma.kudo.findMany({
+    select: {
+      id: true,
+      createdAt: true,
+      style: true,
+      recipient: {
+        select: {
+          profile: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 3,
+  });
+};
