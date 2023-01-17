@@ -63,5 +63,6 @@ export const getRecentKudos = async (userId: string) => {
       createdAt: "desc",
     },
     take: 3,
+    where: { authorId: userId },
   });
 };
