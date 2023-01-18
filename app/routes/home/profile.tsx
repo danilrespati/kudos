@@ -76,6 +76,22 @@ export default function ProfileSettings() {
     setFormData((form) => ({ ...form, [field]: event.target.value }));
   };
 
+  const handleFileUpload = async (file: File) => {
+    let inputFormData = new FormData();
+    inputFormData.append("profile-pic", file);
+
+    const response = await fetch("/avatar", {
+      method: "post",
+      body: inputFormData,
+    });
+    const { imageUrl } = await response.json();
+
+    setFormData({
+      ...formData,
+      profilePicture: imageUrl,
+    });
+  };
+
   return (
     <Modal isOpen={true} className="w-1/3">
       <div className="p-3">
@@ -85,7 +101,7 @@ export default function ProfileSettings() {
         <div className="flex">
           <div className="w-1/3">
             <ImageUploader
-              onChange={() => {}}
+              onChange={handleFileUpload}
               imageUrl={formData.profilePicture || ""}
             />
           </div>

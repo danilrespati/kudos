@@ -18,12 +18,14 @@ const uploadHandler: UploadHandler = async ({ name, filename, data }) => {
   if (name !== "profile-pic") {
     return;
   }
+  console.log(name, filename, data);
 
+  const asyncIterableToReadableStream = require("async-iterable-to-readable-stream");
   const { Location } = await s3
     .upload({
       Bucket: process.env.AWS_BUCKET_NAME || "",
       Key: `${cuid()}.${filename?.split(".").slice(-1)}`,
-      Body: data,
+      Body: asyncIterableToReadableStream(data),
     })
     .promise();
 
