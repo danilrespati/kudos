@@ -5,7 +5,7 @@ import {
   LoaderFunction,
   redirect,
 } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useActionData, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { FormField } from "~/components/FormField";
 import { ImageUploader } from "~/components/ImageUploader";
@@ -73,9 +73,14 @@ export const action: ActionFunction = async ({ request }) => {
 export default function ProfileSettings() {
   const { user } = useLoaderData();
 
+  const actionData = useActionData();
+
+  const [errors, setErrors] = useState(actionData?.errors || {});
+  const [error, setError] = useState(actionData?.error || "");
+
   const [formData, setFormData] = useState({
-    firstName: user.profile.firstName,
-    lastName: user.profile.lastName,
+    firstName: actionData?.fields?.firstName || user.profile.firstName,
+    lastName: actionData?.fields?.lastName || user.profile.lastName,
     department: user.profile.department || "MARKETING",
     profilePicture: user.profile.profilePicture || "",
   });
@@ -85,6 +90,8 @@ export default function ProfileSettings() {
     field: string
   ) => {
     setFormData((form) => ({ ...form, [field]: event.target.value }));
+    setError("");
+    setErrors({});
   };
 
   const handleFileUpload = async (file: File) => {
@@ -109,6 +116,10 @@ export default function ProfileSettings() {
         <h2 className="text-4xl font-semibold text-blue-600 text-center mb-4">
           Your Profile
         </h2>
+        <div className="text-xs font-semibold text-center tracking-wide text-red-500 w-full">
+          {error}
+        </div>
+
         <div className="flex">
           <div className="w-1/3">
             <ImageUploader
@@ -128,12 +139,14 @@ export default function ProfileSettings() {
                 label="First Name"
                 value={formData.firstName}
                 onChange={(e) => handleInputChange(e, "firstName")}
+                error={errors.firstName}
               />
               <FormField
                 htmlFor="lastName"
                 label="Last Name"
                 value={formData.lastName}
                 onChange={(e) => handleInputChange(e, "lastName")}
+                error={errors.lastName}
               />
               <SelectBox
                 className="w-full rounded-xl px-3 py-2 text-gray-400"
