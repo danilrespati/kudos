@@ -8,6 +8,7 @@ import {
 import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { FormField } from "~/components/FormField";
+import { ImageUploader } from "~/components/ImageUploader";
 import { Modal } from "~/components/Modal";
 import { SelectBox } from "~/components/SelectBox";
 import { getUser, requireUserId } from "~/utils/auth.server";
@@ -65,6 +66,7 @@ export default function ProfileSettings() {
     firstName: user.profile.firstName,
     lastName: user.profile.lastName,
     department: user.profile.department || "MARKETING",
+    profilePicture: user.profile.profilePicture || "",
   });
 
   const handleInputChange = (
@@ -81,6 +83,12 @@ export default function ProfileSettings() {
           Your Profile
         </h2>
         <div className="flex">
+          <div className="w-1/3">
+            <ImageUploader
+              onChange={() => {}}
+              imageUrl={formData.profilePicture || ""}
+            />
+          </div>
           <div className="flex-1">
             <form method="post">
               <FormField
